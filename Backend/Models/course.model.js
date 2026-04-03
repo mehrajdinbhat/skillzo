@@ -14,8 +14,14 @@ const courseSchema= new mongoose.Schema({
         required:true
     },
     imageUrl:{      
+       public_id:{
+        type:String,    
+        required:true
+         },
+       url:{
         type:String,
         required:true
-    }
-})
+       }
+       }
+    })
 export const Course= mongoose.model("Course",courseSchema)   
