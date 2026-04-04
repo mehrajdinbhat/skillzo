@@ -1,4 +1,7 @@
 import { Course } from "../Models/course.model.js";
+import { Purchase } from "../Models/purchase.model.js";
+import mongoose from "mongoose";
+// import stripe from "stripe";
 import { v2 as cloudinary } from "cloudinary";
 
 export const createCourse = async (req, res) => {
@@ -113,3 +116,48 @@ export const courseDetails = async (req, res) => {
     console.log("Error in course details", error);
   }
 };
+export const buyCourses = async (req, res) => {
+  const { userId } = req;
+  const { courseId } = req.params;
+
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ errors: "Course not found" });
+    }
+    const existingPurchase = await Purchase.findOne({
+      userId,
+      courseId: new mongoose.Types.ObjectId(courseId),
+    });
+    if (existingPurchase) {
+      return res
+        .status(400)
+        .json({ errors: "User has already purchased this course" });
+    }
+
+    // stripe payment code goes here!!
+    // const amount = course.price;
+    // const paymentIntent = await stripe.paymentIntents.create({
+    //   amount: amount,
+    //   currency: "usd",
+    //   payment_method_types: ["card"],
+    // });
+
+    res.status(201).json({
+      message: "Course purchased successfully",
+      course,
+      // clientSecret: paymentIntent.client_secret,
+    });
+    // ✅ SAVE PURCHASE (THIS WAS MISSING)
+    const purchase = new Purchase({
+      userId,
+      courseId,
+    });
+
+    await purchase.save();
+  } catch (error) {
+    res.status(500).json({ errors: "Error in course buying" });
+    console.log("error in course buying ", error);
+  }
+};
+
