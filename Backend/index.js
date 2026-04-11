@@ -5,10 +5,19 @@ import courseRoutes from "./Routes/course.route.js";
 import userRoutes from "./Routes/user.route.js";
 import fileUpload from "express-fileupload";
 import { v2 as cloudinary } from "cloudinary";
+import cors from "cors";
 const app = express();
 dotenv.config();
 
 // middleware
+app.use(
+  cors({
+    origin: "http://localhost:5173", // OR process.env.FRONTEND_URL
+    credentials: true, // ✅ correct (small 'c')
+    methods: ["GET", "POST", "PUT", "DELETE"], // ✅ correct (methods)
+    allowedHeaders: ["Content-Type", "Authorization"], // ✅ correct
+  }),
+);
 app.use(express.json());
 
 app.use(
@@ -17,6 +26,7 @@ app.use(
     tempFileDir: "/tmp/",
   }),
 );
+
 
 
 const port = process.env.PORT || 3000;
