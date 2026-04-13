@@ -53,93 +53,41 @@ export const signup = async (req, res) => {
   }
 };
 
-// export const login = async (req, res) => {
-//   const { email, password } = req.body;
-//   console.log( email, password);
-//   try {
-//     const user = await User.findOne({ email: email });
-//     const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-//     if (!user || !isPasswordCorrect) {
-//       return res.status(403).json({ errors: "Invalid credentials" });
-//     }
-//     // res.status(201).json({ message: "Login successful", user });
-
-//     // jwt code
-//     const token = jwt.sign(
-//       {
-//         id: user._id,
-//       },
-//       config.JWT_USER_PASSWORD,
-//       { expiresIn: "1d" },
-//     );
-//     res.cookie("jwt", token)
-//     const cookieOptions = {
-//       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
-//       httpOnly: true, //  can't be accsed via js directly
-//       secure: process.env.NODE_ENV === "production", // true for https only
-//       sameSite: "Strict", // CSRF attacks
-//     };
-//     res.cookie("jwt", token, cookieOptions);
-//     res.status(201).json({ message: "Login successful", user, token });
-//   } catch (error) {
-//     res.status(500).json({ errors: "Error in login" });
-//     console.log("error in login", error);
-//   }
-// };
-
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
-
+  console.log( email, password);
   try {
-    // 1. Check if user exists
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(400).json({
-        errors: "User not found",
-      });
-    }
-
-    // 2. Compare password safely
+    const user = await User.findOne({ email: email });
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordCorrect) {
-      return res.status(400).json({
-        errors: "Invalid credentials",
-      });
+    if (!user || !isPasswordCorrect) {
+      return res.status(403).json({ errors: "Invalid credentials" });
     }
+    // res.status(201).json({ message: "Login successful", user });
 
-    // 3. Generate JWT
-    const token = jwt.sign({ id: user._id }, config.JWT_USER_PASSWORD, {
-      expiresIn: "1d",
-    });
-
-    // 4. Cookie options
+    // jwt code
+    const token = jwt.sign(
+      {
+        id: user._id,
+      },
+      config.JWT_USER_PASSWORD,
+      { expiresIn: "1d" },
+    );
+    res.cookie("jwt", token)
     const cookieOptions = {
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Lax", // ✅ better for localhost
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
+      httpOnly: true, //  can't be accsed via js directly
+      secure: process.env.NODE_ENV === "production", // true for https only
+      sameSite: "Strict", // CSRF attacks
     };
-
-    // 5. Set cookie
     res.cookie("jwt", token, cookieOptions);
-
-    // 6. Send response
-    res.status(200).json({
-      message: "Login successful",
-      user,
-      token,
-    });
+    res.status(201).json({ message: "Login successful", user, token });
   } catch (error) {
+    res.status(500).json({ errors: "Error in login" });
     console.log("error in login", error);
-    res.status(500).json({
-      errors: "Error in login",
-    });
   }
 };
+
 export const logout = (req, res) => {
   try {
     res.clearCookie("jwt");

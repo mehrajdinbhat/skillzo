@@ -8,10 +8,39 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { toast } from 'react-hot-toast';
 
 
 function Home() {
   const [courses, setCourses] = useState([]);
+  const [isLoggedin, setIsLoggedin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("user");
+    if (token) {
+      setIsLoggedin(true);
+    }else {
+      setIsLoggedin(false);
+    }
+  }, []);
+
+
+  const handlelogout = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:4001/api/v1/user/logout",
+        { withCredentials: true },
+      );
+
+      // ✅ clear frontend auth
+      localStorage.removeItem("user");
+
+      setIsLoggedin(false);
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error while logging out");
+    }
+  };
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -44,18 +73,29 @@ function Home() {
             <h1 className="md:text-2xl text-orange-500 font-bold">SkillZo</h1>
           </div>
           <div className="space-x-4">
-            <Link
-              to="/login"
-              className="bg-transparent text-white py-2 px-4 border border-white rounded"
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="bg-transparent text-white py-2 px-4 border border-white rounded"
-            >
-              Signup
-            </Link>
+            {isLoggedin ? (
+              <button
+                onClick={handlelogout}
+                className="bg-green-500 text-white p-2 md:py-3 md:px-6 rounded font-semibold hover:bg-white duration-300 hover:text-black"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="bg-transparent text-white py-2 px-4 border border-white rounded"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-transparent text-white py-2 px-4 border border-white rounded"
+                >
+                  Signup
+                </Link>
+              </>
+            )}
           </div>
         </header>
         {/* main section */}

@@ -4,12 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { BACKEND_URL } from "../utils/utils";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Signup() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -127,18 +129,20 @@ function Signup() {
               <label htmlFor="password" className=" text-gray-400 mb-2">
                 Password
               </label>
-              <div className="relative">
+              <div className="relative mb-3">
                 <input
-                  type="password"
-                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className="w-full p-3 bg-gray-800 pr-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-3 rounded-md bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="********"
-                  required
                 />
-                <span className="absolute right-3 top-3 text-gray-500 cursor-pointer">
-                  👁️
+
+                <span
+                  className="absolute right-3 top-3 cursor-pointer text-gray-400"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
             </div>
